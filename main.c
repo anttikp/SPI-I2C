@@ -34,12 +34,12 @@ char *strPtr;					// Parameter pointer to read the Input
 BYTE valueI2C;
 
 //Parameter for SPIM
-char cRXDataSPI;	// 1. Byte of data from the SPI ADC
-char cRXData1SPI;	// 2. Byte of data from SPI ADC
-int togetherSPI;	// 1. and 2. Byte combined to 16 bits
+char cRXDataSPI;			// 1. Byte of data from the SPI ADC
+char cRXData1SPI;			// 2. Byte of data from SPI ADC
+int togetherSPI;			// 1. and 2. Byte combined to 16 bits
 int maskSPI = 0b0000111111111111;	// to remove the first 2 unknown bits of the ADC
-long valueSPI;	// final SPI result
-long longValueSPI;	// for calculation perpes
+long valueSPI;				// final SPI result
+long longValueSPI;			// for calculation perpes
 
 //Functions
 void analogValueFunc(void);
@@ -56,22 +56,22 @@ void main(void)
 	M8C_EnableGInt ; // enable global interrupts 
 	  
 	PGA_Start(PGA_HIGHPOWER);      // Turn on the PGA
-    LPF2_Start(LPF2_HIGHPOWER);    // Turn on the LPF
+    	LPF2_Start(LPF2_HIGHPOWER);    // Turn on the LPF
 	
-	Counter8_WritePeriod(0x07);			// set period to eight clocks
-    Counter8_WriteCompareValue(0x03);   // generate a 50% duty cycle
-    Counter8_EnableInt();               // ensure interrupt is enabled
-    Counter8_Start();                   // start the counter!
+	Counter8_WritePeriod(0x07);	    // set period to eight clocks
+   	Counter8_WriteCompareValue(0x03);   // generate a 50% duty cycle
+    	Counter8_EnableInt();               // ensure interrupt is enabled
+    	Counter8_Start();                   // start the counter!
 	
-	LCD_Start();               			// Initialize LCD
-	OneWire_Start();          			// Initialize 1-Wire pin
+	LCD_Start();               	    // Initialize LCD
+	OneWire_Start();          	    // Initialize 1-Wire pin
 	
 	I2Cm_Start();
 	
 	SPIM_Start(SPIM_SPIM_MODE_0  | SPIM_SPIM_MSB_FIRST);
 	
 	RX8_EnableInt();			// Enable the RX8 interrupt 
-    RX8_Start(RX8_PARITY_NONE); // Set the parity of the RX8 receiver and enable the
+    	RX8_Start(RX8_PARITY_NONE); 		// Set the parity of the RX8 receiver and enable the
 	TX8SW_Start();
 	TX8SW_CPutString("\r Welcome\r\n");
 	
@@ -81,36 +81,36 @@ void main(void)
 	while (1){
 		if(RX8_bCmdCheck) {  // Wait for command from PC 
 			
-			if(strPtr = RX8_szGetParam()) {							// More than delimiter"
-            	TX8SW_CPutString("\r\nFound valid command =>");	// verify Input
-				TX8SW_PutString(strPtr);   								// Print out command
+			if(strPtr = RX8_szGetParam()) {					// More than delimiter"
+            			TX8SW_CPutString("\r\nFound valid command =>");		// verify Input
+				TX8SW_PutString(strPtr);   				// Print out command
 				TX8SW_CPutString("\r\n");
 
-				if ((strPtr[0] == 'a') || (strPtr[0] == 'A')){ 			// if receive "a" or "A"
-					EzADC_Stop();										// Stop ADC, so that the LCD output is not over written 
+				if ((strPtr[0] == 'a') || (strPtr[0] == 'A')){ 		// if receive "a" or "A"
+					EzADC_Stop();					// Stop ADC, so that the LCD output is not over written 
 					TX8SW_CPutString("\r NoldPSoClab4 \r\n");
 					lcdClean();
-					LCD_Position(0,2);									// Place LCD cursor at row 0, col 0
-					LCD_PrCString("NoldPSoClab4");					// Print "NoldPSoClab4" on the LCD
+					LCD_Position(0,2);				// Place LCD cursor at row 0, col 0
+					LCD_PrCString("NoldPSoClab4");			// Print "NoldPSoClab4" on the LCD
 				}
-				if ((strPtr[0] == 's') || (strPtr[0] == 'S')) {			// if receive "s" or "S"
-					EzADC_Stop();										// Stop ADC
-					EzADC_Start(EzADC_HIGHPOWER);       				// Apply power to ADC
-					lcdClean();											// clean LCD
+				if ((strPtr[0] == 's') || (strPtr[0] == 'S')) {		// if receive "s" or "S"
+					EzADC_Stop();					// Stop ADC
+					EzADC_Start(EzADC_HIGHPOWER);       		// Apply power to ADC
+					lcdClean();					// clean LCD
 					
 					// to calculate one sample of the analog Value
-					EzADC_GetSamples(1);								// to show just 1 Sample (Analog are 2 Samples)
+					EzADC_GetSamples(1);				// to show just 1 Sample (Analog are 2 Samples)
 					valueAnalog = EzADC_iGetDataClearFlag(); 
 					valueAnalog = (valueAnalog*400)/(4096);
 					LCD_Position(0,0);
 					LCD_PrCString("Analog");
-					lcdOutput(0,8,valueAnalog);							// call the function for LCD output
+					lcdOutput(0,8,valueAnalog);			// call the function for LCD output
 					
-					readOneWire = 2;						// Analog is calculating the average from 50 samples
+					readOneWire = 2;				// Analog is calculating the average from 50 samples
 				}
 				if ((strPtr[0] == 'c') || (strPtr[0] == 'c')){
-					EzADC_Stop();								// Stop ADC
-					lcdClean();									// clean LCD
+					EzADC_Stop();					// Stop ADC
+					lcdClean();					// clean LCD
 					
 					// I2C
 					i2cValue();
@@ -128,24 +128,22 @@ void main(void)
 					
 				}
 				if ((strPtr[0] == 'x') || (strPtr[0] == 'X')){
-					EzADC_Stop();								// Stop ADC
-					lcdClean();									// clean LCD
-					LCD_Position(0,0);							// LCD output
+					EzADC_Stop();					// Stop ADC
+					lcdClean();					// clean LCD
+					LCD_Position(0,0);				// LCD output
 					LCD_PrCString("Stop sampling");
 					TX8SW_CPutString("\r\nStop sampling\r\n ");
 				}
 			}
-		RX8_CmdReset();                        			// Reset command buffer
+		RX8_CmdReset();                        				// Reset command buffer
 		} 
 		
-		//TX8SW_CPutString("\r bleibe hängen\r\n");
-		
-		if (ntemp >= 50){				//by 50 data the average will be calculated
+		if (ntemp >= 50){			//by 50 data the average will be calculated
 			
 			analogValueFunc();
 			LCD_Position(0,0);
 			LCD_PrCString("Analog");
-			lcdOutput(0,7,valueAnalog);			// call the function for LCD output
+			lcdOutput(0,7,valueAnalog);	// call the function for LCD output
 		}
 		
 		
@@ -176,7 +174,6 @@ void main(void)
 			TX8SW_PutString(itoa(intToString,valueSPI,10));
 			TX8SW_CPutString("\r\n }\r\n");
 			
-			//evtl noch 750 ms warten
 			OneWire_fReset();        			// reset the 1-Wire device  
 			OneWire_WriteByte(0xCC); 			// "skip ROM" command  
 			OneWire_WriteByte(0x44);			// "read scratchpad" command 
@@ -202,24 +199,24 @@ void lcdClean(void){
 
 void analogValueFunc(void){
 	valueAnalog = stemp/ntemp;	// calculate average of 50 data
-	ntemp = 0;					// set the number and addition to zero
+	ntemp = 0;			// set the number and addition to zero
 	stemp = 0;
 	valueAnalog = (valueAnalog*400)/(4096);	// calculate the temperature in celsius
-											// T = (4V * Value)/(4096 * 0,01V)
-											//4096 couse of the 12 bit by the ADC
-	readOneWire++;							//increment readOneWire
+						// T = (4V * Value)/(4096 * 0,01V)
+						//4096 couse of the 12 bit by the ADC
+	readOneWire++;				//increment readOneWire
 }
 
 void oneWireValue(void){
-	OneWire_fReset();        			// reset the 1-Wire device  
-	OneWire_WriteByte(0xCC); 			// "skip ROM" command  
-	OneWire_WriteByte(0xBE); 			// "convert temperature" command  
+	OneWire_fReset();        		// reset the 1-Wire device  
+	OneWire_WriteByte(0xCC); 		// "skip ROM" command  
+	OneWire_WriteByte(0xBE); 		// "convert temperature" command  
 	valueOneWire = (OneWire_bReadByte())/2;  // read temeperature and send to valueOneWire
 }
 
 void i2cValue(void){
-	I2Cm_fSendStart(0x68,I2Cm_WRITE);    // Do a write
-	I2Cm_fWrite(0x00);                   // the slave acknowledged the mast	r //Set sub address to zero
+	I2Cm_fSendStart(0x68,I2Cm_WRITE);    	// Do a write
+	I2Cm_fWrite(0x00);                   	// the slave acknowledged the mast	//Set sub address to zero
 
 	I2Cm_fSendRepeatStart(0x68,I2Cm_READ);  // Do a read
 	valueI2C = I2Cm_bRead(I2Cm_NAKslave);   // Read data byte and NAK the slave to signify end of read.
@@ -227,21 +224,20 @@ void i2cValue(void){
 }
 
 void spiValue(void ){
-	/* set slave select low */
 	
-	SPIM_SendTxData(0xff);	// by sending data the receive starts
-	while (!(SPIM_bReadStatus() & SPIM_SPIM_RX_BUFFER_FULL)); // check if the read buffer is full
-	cRXDataSPI = SPIM_bReadRxData();	// read the data in the buffer 8 bit at a time
+	SPIM_SendTxData(0xff);						// by sending data the receive starts
+	while (!(SPIM_bReadStatus() & SPIM_SPIM_RX_BUFFER_FULL));	// check if the read buffer is full
+	cRXDataSPI = SPIM_bReadRxData();				// read the data in the buffer 8 bit at a time
 					
 	SPIM_SendTxData(0xff);	// again reading 8 bits because the slave sends 16 bits
 				
 	while (!(SPIM_bReadStatus() & SPIM_SPIM_RX_BUFFER_FULL));
-	cRXData1SPI = SPIM_bReadRxData();	// reading 2nd byte
-	togetherSPI =  cRXDataSPI + cRXData1SPI; // putting all bits together
-	togetherSPI = togetherSPI >> 1;	// ADC has just 12 bits. LSB must be out shifted
-	valueSPI = togetherSPI & maskSPI; // first 4 bits (MSB) will be set to 0
-	longValueSPI = valueSPI * 409;	// calculating the value of adc
-	valueSPI = longValueSPI / 4096; // final result
+	cRXData1SPI = SPIM_bReadRxData();		// reading 2nd byte
+	togetherSPI =  cRXDataSPI + cRXData1SPI;	// putting all bits together
+	togetherSPI = togetherSPI >> 1;			// ADC has just 12 bits. LSB must be out shifted
+	valueSPI = togetherSPI & maskSPI; 		// first 4 bits (MSB) will be set to 0
+	longValueSPI = valueSPI * 409;			// calculating the value of adc
+	valueSPI = longValueSPI / 4096; 		// final result
 }
 
 //called when ADC conversion is ready
